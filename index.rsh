@@ -52,15 +52,19 @@ export const main = Reach.App(() => {
 	Deployer.interact.log(["App deployed by: ", this]);
 	const deposits = new Map(UInt);
 	const loans    = new Map(UInt);
+	/*
 	const cAlgo = new Token({
 	  name: Bytes(32).pad("cAlgo"),
-	  symbol: Bytes(8).pad("cAlgo")});
+	  symbol: Bytes(8).pad("cAlgo"),
+		supply: 1000});
+	*/
 
 	/*
 	const lastLenderPayout = new Map(UInt);
 	const lastBorrowerPayout = new Map(UInt);
 	*/
 	commit();
+
 
 	// first publication
 	Lender.only(() => {const msg = LenderMsg.Deposit(100)});
@@ -71,13 +75,18 @@ export const main = Reach.App(() => {
 		}));;
 
 	// transaction loop
-	var [lastLender, lastLenderMsg, i] = [this, msg, 0];
+	var [lastLender, lastLenderMsg] = [this, msg];
 	invariant(true);
-	while(i < 20) {
-		logMsg("LendingTransaction", [lastLender, lastLenderMsg]);
+	while(true) {
+		//logMsg("LendingTransaction", [lastLender, lastLenderMsg]);
 		switch(lastLenderMsg) {
 			case Deposit:
-				logMsg("LenderPaid", [lastLender, lastLenderMsg]);
+				//logMsg("LenderPaid", [lastLender, lastLenderMsg]);
+				/*
+				if(balance(cAlgo) >= lastLenderMsg) {
+					transfer(lastLenderMsg, cAlgo).to(lastLender);
+				}
+				*/
 				deposits[lastLender] = fromSome(deposits[lastLender],0) + lastLenderMsg;
 			case Withdraw:
 				if(balance() - lastLenderMsg > 0 &&
@@ -85,7 +94,7 @@ export const main = Reach.App(() => {
 			  {
 					transfer(lastLenderMsg).to(lastLender);
 					deposits[lastLender] = fromSome(deposits[lastLender],0)-lastLenderMsg;
-					logMsg("LenderWithdrew", [lastLender, lastLenderMsg]);
+					//logMsg("LenderWithdrew", [lastLender, lastLenderMsg]);
 				}
 		}
 		commit();
@@ -112,17 +121,17 @@ export const main = Reach.App(() => {
 		*/
 
 		// perform borrower transaction
-		logMsg("BorrowerTransaction", [this, borrowerMsg]);
+		//logMsg("BorrowerTransaction", [this, borrowerMsg]);
 		switch(borrowerMsg) {
 			case Borrow:
 				if (balance() - borrowerMsg >= 0) {
 					transfer(borrowerMsg).to(this);
-					logMsg("BorrowerBorrowed", [this, borrowerMsg]);
+					//logMsg("BorrowerBorrowed", [this, borrowerMsg]);
 					loans[this] = fromSome(loans[this], 0) + borrowerMsg;
 				}
 			case Repay:
 				if(borrowerMsg <= fromSome(loans[this], 0)) {
-					logMsg("BorrowerRepaid", [this, borrowerMsg]);
+					//logMsg("BorrowerRepaid", [this, borrowerMsg]);
 					loans[this] = fromSome(loans[this],0) - borrowerMsg;
 				}
 		}
@@ -131,19 +140,8 @@ export const main = Reach.App(() => {
 		Lender.only(() => {const lenderMsg = LenderMsg.Withdraw(10)});
 		Lender.publish(lenderMsg);
 		// update borrower interest payment
-
-		// perform lender transaction
-		[lastLender, lastLenderMsg, i] = [this, lenderMsg, i + 1];
+		[lastLender, lastLenderMsg] = [this, lenderMsg];
 		continue;
 	}
 	commit();
-
-	Deployer.publish();
-	cAlgo.burn(cAlgo.supply());
-	if(!cAlgo.destroyed()) {
-	  cAlgo.destroy();
-	}
-	transfer(balance()).to(Deployer);
-	commit();
-	assert(balance() == 0);
 });
