@@ -3,6 +3,7 @@
 export const main = Reach.App(() => {
 
 	// data definitions
+	const Msg = Data({Deposit: Null, Withdraw: Null, Borrow: Null, Repay: Null});
 	const LenderMsg   = Data({Deposit: UInt, Withdraw: UInt});
 	const BorrowerMsg = Data({Borrow : UInt, Repay   : UInt});
 
@@ -78,10 +79,10 @@ export const main = Reach.App(() => {
 	var [lastLender, lastLenderMsg] = [this, msg];
 	invariant(true);
 	while(true) {
-		//logMsg("LendingTransaction", [lastLender, lastLenderMsg]);
+		logMsg("LendingTransaction", [lastLender, lastLenderMsg]);
 		switch(lastLenderMsg) {
 			case Deposit:
-				//logMsg("LenderPaid", [lastLender, lastLenderMsg]);
+				logMsg("LenderPaid", [lastLender, lastLenderMsg]);
 				/*
 				if(balance(cAlgo) >= lastLenderMsg) {
 					transfer(lastLenderMsg, cAlgo).to(lastLender);
@@ -94,7 +95,7 @@ export const main = Reach.App(() => {
 			  {
 					transfer(lastLenderMsg).to(lastLender);
 					deposits[lastLender] = fromSome(deposits[lastLender],0)-lastLenderMsg;
-					//logMsg("LenderWithdrew", [lastLender, lastLenderMsg]);
+					logMsg("LenderWithdrew", [lastLender, lastLenderMsg]);
 				}
 		}
 		commit();
@@ -121,17 +122,17 @@ export const main = Reach.App(() => {
 		*/
 
 		// perform borrower transaction
-		//logMsg("BorrowerTransaction", [this, borrowerMsg]);
+		logMsg("BorrowerTransaction", [this, borrowerMsg]);
 		switch(borrowerMsg) {
 			case Borrow:
 				if (balance() - borrowerMsg >= 0) {
 					transfer(borrowerMsg).to(this);
-					//logMsg("BorrowerBorrowed", [this, borrowerMsg]);
+					logMsg("BorrowerBorrowed", [this, borrowerMsg]);
 					loans[this] = fromSome(loans[this], 0) + borrowerMsg;
 				}
 			case Repay:
 				if(borrowerMsg <= fromSome(loans[this], 0)) {
-					//logMsg("BorrowerRepaid", [this, borrowerMsg]);
+					logMsg("BorrowerRepaid", [this, borrowerMsg]);
 					loans[this] = fromSome(loans[this],0) - borrowerMsg;
 				}
 		}
