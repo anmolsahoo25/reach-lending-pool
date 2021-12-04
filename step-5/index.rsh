@@ -8,7 +8,7 @@ export const main = Reach.App(() => {
         Withdraw: UInt,
         Borrow: UInt,
         Repay: UInt,
-        Transfer: Object({amount: UInt, to: Address})
+        Transfer: Object({amt: UInt, to: Address})
     });
 
     const MaybeMsg = Maybe(Msg);
@@ -20,6 +20,7 @@ export const main = Reach.App(() => {
 
     const Lender = ParticipantClass('Lender', {
         getMsg: Fun(true, Msg),
+				printTokenBalance: Fun(true, Null),
 				informTokenId: Fun(true, Null)
     });
 
@@ -131,7 +132,7 @@ export const main = Reach.App(() => {
 							Withdraw : (v) => v < fromSome(deposits[this], 0) ? v : 0,
 							Repay    : (_) => 0,
 							Borrow   : (_) => 0,
-							Transfer : (o) => o.amount
+							Transfer : ({amt, to}) => amt < fromSome(deposits[this], 0) ? amt : 0
 						}),
 						token
 					]
@@ -175,6 +176,12 @@ export const main = Reach.App(() => {
 							loans[this] = currLoan - toPay;
 						}
 					case Transfer:
+						if(msg.amt < fromSome(deposits[this], 0)) {
+							transfer(msg.amt, token).to(msg.to);
+							deposits[this] = fromSome(deposits[this], 0) - msg.amt;
+							deposits[msg.to] = fromSome(deposits[msg.to], 0) + msg.amt;
+							Lender.interact.printTokenBalance(token);
+						}
 				}
 
 				/* continue loop while updating loop variables */

@@ -19,6 +19,21 @@ const depositAndWithdraw = () => {
 	return f;
 };
 
+const depositAndTransfer = (to) => {
+	var x = 0;
+	const f = () => {
+		if(x % 2 === 0) {
+			x = x + 1;
+			return ['Deposit', 100];
+		} else {
+			x = x + 1;
+			return ['Transfer', {amt: 10, to: to}];
+		}
+	};
+
+	return f;
+};
+
 const borrowAndRepay = () => {
 	var x = 0;
 	const f = () => {
@@ -63,15 +78,17 @@ const borrowAndRepay = () => {
 
 	await Promise.all([
 		backend.Deployer(ctc0, {
-			log: ([s1,[s11,s12]]) => console.log(
-				`[REACH] : ${s1}${addrs[s11]} ${typeof(s12) === 'undefined' ? "" : s12 }`)
+			log: ([s1,[s11,s12,s13]]) => console.log(
+				`[REACH] : ${s1}${addrs[s11]} ${typeof(s12) === 'undefined' ? "" : s12} ${typeof(s13) === 'undefined' ? "" : s13}`)
 		}),
 		backend.Lender(ctcA, {
 			getMsg: depositAndWithdraw(),
+			printTokenBalance: async (token) => log(`accA ${await stdlib.balanceOf(accA, token)} tokens`),
 			informTokenId: async (token) => await accA.tokenAccept(token)
 		}),
 		backend.Lender(ctcB, {
-			getMsg: depositAndWithdraw(),
+			getMsg: depositAndTransfer(accA.getAddress()),
+			printTokenBalance: async (token) => log(`accB ${await stdlib.balanceOf(accB, token)} tokens`),
 			informTokenId: async (token) => await accB.tokenAccept(token)
 		}),
 		backend.Borrower(ctcC, {
