@@ -15,7 +15,7 @@ export const main = Reach.App(() => {
 
     /* participant interfaces */
     const Deployer = Participant('Deployer', {
-        log: Fun(true, Null)
+        log: Fun(true, Null),
     });
 
     const Lender = ParticipantClass('Lender', {
@@ -35,7 +35,19 @@ export const main = Reach.App(() => {
 			}
 
 			else if (s == "Transaction") {
-				Deployer.interact.log(["Transaction by       : ", d]);
+				const msg = d[1];
+				switch(msg) {
+					case Deposit:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Withdraw:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Borrow:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Repay:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Transfer:
+						Deployer.interact.log(["Transaction by       : ", [d[0], msg.to, ["Transfer", msg.amt]]]);
+				}
 			}
 
 			else if (s == "LendingTransaction") {
@@ -168,6 +180,7 @@ export const main = Reach.App(() => {
 							transfer(msg).to(this);
 							loans[this] = fromSome(loans[this], 0) + msg;
 						}
+
 					case Repay:
 						const currLoan = fromSome(loans[this], 0);
 						const toPay    = min(msg, currLoan);
@@ -175,6 +188,7 @@ export const main = Reach.App(() => {
 							log("BorrowerRepaid", [this, toPay]);
 							loans[this] = currLoan - toPay;
 						}
+
 					case Transfer:
 						if(msg.amt < fromSome(deposits[this], 0)) {
 							transfer(msg.amt, token).to(msg.to);

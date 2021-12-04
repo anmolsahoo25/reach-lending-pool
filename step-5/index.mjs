@@ -79,7 +79,7 @@ const borrowAndRepay = () => {
 	await Promise.all([
 		backend.Deployer(ctc0, {
 			log: ([s1,[s11,s12,s13]]) => console.log(
-				`[REACH] : ${s1}${addrs[s11]} ${typeof(s12) === 'undefined' ? "" : s12} ${typeof(s13) === 'undefined' ? "" : s13}`)
+				`[REACH] : ${s1}${addrs[s11]} ${typeof(addrs[s12]) === 'undefined' ? (typeof(s12) === 'undefined' ? "" : s12) : addrs[s12]} ${typeof(s13) === 'undefined' ? "" : s13}`)
 		}),
 		backend.Lender(ctcA, {
 			getMsg: depositAndWithdraw(),
