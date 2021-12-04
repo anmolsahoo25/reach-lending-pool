@@ -32,6 +32,10 @@ export const main = Reach.App(() => {
 				Deployer.interact.log(["First publication by : ", d]);
 			}
 
+			else if (s == "Transaction") {
+				Deployer.interact.log(["Transaction by       : ", d]);
+			}
+
 			else if (s == "LendingTransaction") {
 				Deployer.interact.log(["Lending transaction  : ", d]);
 			}
@@ -77,14 +81,27 @@ export const main = Reach.App(() => {
     const loans    = new Map(UInt);
 
     /* while loop for executing transactions */
-    var [] = []
+    var [lastAddr, lastMsg] = [this, MaybeMsg.None(null)]
     invariant(true)
     while(true) {
 				commit();
 
-				race(Lender).publish();
+				/* local steps to retrieve transaction message */
+				Lender.only(() => { 
+					const partAddr = this;
+					const msg = declassify(interact.getMsg());
+				});
+				Borrower.only(() => {
+					const partAddr = this;
+					const msg = declassify(interact.getMsg());
+				});
 
-        [] = [];
+				/* transaction race */
+				race(Lender, Borrower).publish(partAddr, msg).pay(0);
+				log("Transaction", [partAddr, msg]);
+
+				/* continue loop while updating loop variables */
+        [lastAddr, lastMsg] = [partAddr, MaybeMsg.Some(msg)];
         continue;
     }
 

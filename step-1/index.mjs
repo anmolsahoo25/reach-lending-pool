@@ -21,7 +21,8 @@ const log = (msg) => console.log(`[APP]   : ${msg}`);
 
 	await Promise.all([
 		backend.Deployer(ctc0, {
-			log: ([s1,[s11,s12]]) => console.log(`[REACH] : ${s1}${addrs[s11]}${typeof(s12) === 'undefined' ? "" : s12 }`)
+			log: ([s1,[s11,s12]]) => console.log(
+				`[REACH] : ${s1}${addrs[s11]} ${typeof(s12) === 'undefined' ? "" : s12 }`)
 		}),
 	]);
 })();
