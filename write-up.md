@@ -227,11 +227,11 @@ logMsg("FirstTransaction", [this]);
 
 Run `reach run` and if everything was successful, you should see this output -
 
-`bash
+```bash
 [APP]   : Starting application
 [APP]   : acc0 (0x7b...) 1000000000 microALGO
 [REACH] : First publication by : acc0
-`
+```
 
 As we can, we first log from the frontend and the first publication from Reach.
 So far, so good!
