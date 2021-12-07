@@ -82,7 +82,7 @@ export const main = Reach.App(() => {
         Withdraw: UInt,
         Borrow  : UInt,
         Repay   : UInt,
-        Transfer: Object({amount: UInt, to: Address})
+        Transfer: Object({amt: UInt, to: Address})
     });
 
     const MaybeMsg = Maybe(Msg);
@@ -164,6 +164,7 @@ it makes it easy to write (and verify) each step of the contract.
 
 # 3. Front-end setup in Javascript
 _Code can be found here - [step-1](https://github.com/anmolsahoo25/reach-lending-pool/tree/trunk/step-1)_
+
 In this section, we can run our code (finally) to check if we have setup
 everything correctly. We can write a minimal front-end in Javascript. Open
 up `index.mjs` and input the following code -
@@ -217,7 +218,9 @@ create an account and create a Deployer participant. Hopefully, there is nothing
 much to explain here, but if you feel like you are missing something you can refer
 to the Reach tutorial here - [Scaffolding and Setup](https://docs.reach.sh/tut-2.html).
 
-We also add a logging function in `index.rsh` and a new log after the first publication -
+We also add a logging function in `index.rsh` (the definition would waste space
+here, so feel free to copy it from the source) and a new log after the
+first publication -
 
 ```javascript
 /* first consensus for setup */
@@ -237,6 +240,77 @@ As we can, we first log from the frontend and the first publication from Reach.
 So far, so good!
 
 # 4. Implementing the core transaction loop
+_Code can be found here - [step-2](https://github.com/anmolsahoo25/reach-lending-pool/tree/trunk/step-2)_
+
+Now that we have the basic app in place, we can go about implementing the core
+logic for our application. Let's see what that looks like. We change our
+`while` loop to look like this -
+
+```javascript
+/* while loop for executing transactions */
+    Deployer.publish();
+    var [] = []
+    invariant(true)
+    while(true) {
+				commit();
+
+				/* local steps to retrieve transaction message */
+				Lender.only(() => { 
+					const msg = declassify(interact.getMsg());
+				});
+				Borrower.only(() => {
+					const msg = declassify(interact.getMsg());
+				});
+
+				/* transaction race */
+				race(Lender, Borrower).publish(msg).pay(0);
+				log("Transaction", [this, msg]);
+
+				/* continue loop */
+        [] = [];
+        continue;
+    }
+```
+
+Let's go over it step-by-step - 
+
+1. First, both `Lender` and `Participant` classes perform a local step to
+	 retrieve their action for this round.
+2. Then they `race` to publish their message.
+3. We log the winner of the race and the `msg` value.
+4. We go onto the next iteration.
+
+In the front-end, we create a few new accounts and add them as participants -
+
+```javascript
+	const ctc0 = acc0.contract(backend);
+	const ctcA = accA.contract(backend, ctc0.getInfo());
+	const ctcB = accB.contract(backend, ctc0.getInfo());
+
+	await Promise.all([
+		backend.Deployer(ctc0, {
+			log: logReach(addrs)
+		}),
+		backend.Lender(ctcA, {
+			getMsg: () => ['Deposit', 0]
+		}),
+		backend.Borrower(ctcB, {
+			getMsg: () => ['Repay', 0]
+		})
+	]);
+```
+
+Note that we create two static clients, who always return a fixed message. Let's
+run our code. You would see a lot of output, but the important one should be (some lines truncated) -
+
+```bash
+...
+[REACH] : Transaction by       : accB Repay,0
+[REACH] : Transaction by       : accA Deposit,0
+```
+
+As we can see, each round we are taking a transaction action from one account.
+Now all we have to do is implement the logic for each participant class!
 
 # 5. Implementing and testing the logic for lending users
 

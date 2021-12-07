@@ -4,11 +4,11 @@ export const main = Reach.App(() => {
 
     /* data definitions */
     const Msg = Data({
-        Deposit: UInt,
+        Deposit : UInt,
         Withdraw: UInt,
-        Borrow: UInt,
-        Repay: UInt,
-        Transfer: Object({amount: UInt, to: Address})
+        Borrow  : UInt,
+        Repay   : UInt,
+        Transfer: Object({amt: UInt, to: Address})
     });
 
     const MaybeMsg = Maybe(Msg);
@@ -33,7 +33,20 @@ export const main = Reach.App(() => {
 			}
 
 			else if (s == "Transaction") {
-				Deployer.interact.log(["Transaction by       : ", d]);
+				const msg = d[1];
+				switch(msg) {
+					case Deposit:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Withdraw:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Borrow:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Repay:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Transfer:
+						Deployer.interact.log(["Transaction by       : ",
+						    [d[0], msg.to, ["Transfer", msg.amt]]]);
+				}
 			}
 
 			else if (s == "LendingTransaction") {
@@ -64,6 +77,18 @@ export const main = Reach.App(() => {
 				Deployer.interact.log(["Lender transferred   : ", d]);
 			}
 
+			else if (s == "TokenBalance") {
+				Deployer.interact.log(["Token balance        : ", d]);
+			}
+
+			else if (s == "InterestEarned") {
+				Deployer.interact.log(["Interest earned      : ", d]);
+			}
+
+			else if (s == "TotalInterest") {
+				Deployer.interact.log(["Total interest       : ", d]);
+			}
+
 			else {
 				Deployer.interact.log([s, d]);
 			}
@@ -80,30 +105,31 @@ export const main = Reach.App(() => {
     const deposits = new Map(UInt);
     const loans    = new Map(UInt);
 
+    commit();
+
     /* while loop for executing transactions */
-    var [lastAddr, lastMsg] = [this, MaybeMsg.None(null)]
+    Deployer.publish();
+    var [] = []
     invariant(true)
     while(true) {
 				commit();
 
 				/* local steps to retrieve transaction message */
 				Lender.only(() => { 
-					const partAddr = this;
 					const msg = declassify(interact.getMsg());
 				});
 				Borrower.only(() => {
-					const partAddr = this;
 					const msg = declassify(interact.getMsg());
 				});
 
 				/* transaction race */
-				race(Lender, Borrower).publish(partAddr, msg).pay(0);
-				log("Transaction", [partAddr, msg]);
+				race(Lender, Borrower).publish(msg).pay(0);
+				log("Transaction", [this, msg]);
 
-				/* continue loop while updating loop variables */
-        [lastAddr, lastMsg] = [partAddr, MaybeMsg.Some(msg)];
+				/* continue loop */
+        [] = [];
         continue;
     }
 
-		commit();
+    commit();
 });

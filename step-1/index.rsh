@@ -8,7 +8,7 @@ export const main = Reach.App(() => {
         Withdraw: UInt,
         Borrow  : UInt,
         Repay   : UInt,
-        Transfer: Object({amount: UInt, to: Address})
+        Transfer: Object({amt: UInt, to: Address})
     });
 
     const MaybeMsg = Maybe(Msg);

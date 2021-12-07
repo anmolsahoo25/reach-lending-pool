@@ -12,7 +12,7 @@ const logReach = (addrs) => {
 		const s2 = typeof(addrs[e[1]]) === 'undefined' ?
 			(typeof(e[1]) === 'undefined' ? "" : e[1]) : addrs[e[1]];
 		const s3 = typeof(e[2]) === 'undefined' ? "" : e[2];
-		console.log(`[REACH] : ${s}${s1}${s2}${s3}`);
+		console.log(`[REACH] : ${s}${s1} ${s2}${s3}`);
 	};
 
 	return f;
