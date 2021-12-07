@@ -252,21 +252,21 @@ logic for our application. Let's see what that looks like. We change our
     var [] = []
     invariant(true)
     while(true) {
-				commit();
+        commit();
 
-				/* local steps to retrieve transaction message */
-				Lender.only(() => { 
-					const msg = declassify(interact.getMsg());
-				});
-				Borrower.only(() => {
-					const msg = declassify(interact.getMsg());
-				});
+        /* local steps to retrieve transaction message */
+        Lender.only(() => { 
+            const msg = declassify(interact.getMsg());
+        });
+        Borrower.only(() => {
+            const msg = declassify(interact.getMsg());
+        });
 
-				/* transaction race */
-				race(Lender, Borrower).publish(msg).pay(0);
-				log("Transaction", [this, msg]);
+        /* transaction race */
+        race(Lender, Borrower).publish(msg).pay(0);
+        log("Transaction", [this, msg]);
 
-				/* continue loop */
+        /* continue loop */
         [] = [];
         continue;
     }
@@ -283,21 +283,21 @@ Let's go over it step-by-step -
 In the front-end, we create a few new accounts and add them as participants -
 
 ```javascript
-	const ctc0 = acc0.contract(backend);
-	const ctcA = accA.contract(backend, ctc0.getInfo());
-	const ctcB = accB.contract(backend, ctc0.getInfo());
+  const ctc0 = acc0.contract(backend);
+  const ctcA = accA.contract(backend, ctc0.getInfo());
+  const ctcB = accB.contract(backend, ctc0.getInfo());
 
-	await Promise.all([
-		backend.Deployer(ctc0, {
-			log: logReach(addrs)
-		}),
-		backend.Lender(ctcA, {
-			getMsg: () => ['Deposit', 0]
-		}),
-		backend.Borrower(ctcB, {
-			getMsg: () => ['Repay', 0]
-		})
-	]);
+  await Promise.all([
+    backend.Deployer(ctc0, {
+      log: logReach(addrs)
+    }),
+    backend.Lender(ctcA, {
+      getMsg: () => ['Deposit', 0]
+    }),
+    backend.Borrower(ctcB, {
+      getMsg: () => ['Repay', 0]
+    })
+  ]);
 ```
 
 Note that we create two static clients, who always return a fixed message. Let's
