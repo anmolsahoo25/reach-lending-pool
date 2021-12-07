@@ -4,26 +4,26 @@ export const main = Reach.App(() => {
 
     /* data definitions */
     const Msg = Data({
-        Deposit : UInt,
-        Withdraw: UInt,
-        Borrow  : UInt,
-        Repay   : UInt,
-        Transfer: Object({amt: UInt, to: Address})
+      Deposit : UInt,
+      Withdraw: UInt,
+      Borrow  : UInt,
+      Repay   : UInt,
+      Transfer: Object({amt: UInt, to: Address})
     });
 
     const MaybeMsg = Maybe(Msg);
 
     /* participant interfaces */
     const Deployer = Participant('Deployer', {
-        log: Fun(true, Null)
+      log: Fun(true, Null)
     });
 
     const Lender = ParticipantClass('Lender', {
-        getMsg: Fun(true, Msg)
+      getMsg: Fun(true, Msg)
     });
 
     const Borrower = ParticipantClass('Borrower', {
-        getMsg: Fun(true, Msg)
+      getMsg: Fun(true, Msg)
     });
 
     /* deploy app */
@@ -43,12 +43,12 @@ export const main = Reach.App(() => {
     var [] = []
     invariant(true)
     while(true) {
-        commit();
+      commit();
 
-        race(Lender, Borrower).publish();
+      race(Lender, Borrower).publish();
 
-        [] = [];
-        continue;
+      [] = [];
+      continue;
     }
     
     commit();
