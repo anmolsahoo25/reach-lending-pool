@@ -7,12 +7,15 @@ const log = (msg) => console.log(`[APP]   : ${msg}`);
 const depositAndWithdraw = () => {
 	var x = 0;
 	const f = () => {
-		if(x % 2 === 0) {
+		if(x === 0) {
 			x = x + 1;
 			return ['Deposit', 100];
+		} else if(x === 10) {
+			x = x + 1;
+			return ['Withdraw', 50];
 		} else {
 			x = x + 1;
-			return ['Withdraw', 10];
+			return ['Deposit', 0];
 		}
 	};
 
@@ -86,6 +89,7 @@ const borrowAndRepay = () => {
 			printTokenBalance: async (token) => log(`accA ${await stdlib.balanceOf(accA, token)} tokens`),
 			informTokenId: async (token) => await accA.tokenAccept(token)
 		}),
+		/*
 		backend.Lender(ctcB, {
 			getMsg: depositAndTransfer(accA.getAddress()),
 			printTokenBalance: async (token) => log(`accB ${await stdlib.balanceOf(accB, token)} tokens`),
@@ -94,5 +98,6 @@ const borrowAndRepay = () => {
 		backend.Borrower(ctcC, {
 			getMsg: () => ['Repay', 10]
 		})
+		*/
 	]);
 })();

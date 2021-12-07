@@ -82,6 +82,14 @@ export const main = Reach.App(() => {
 				Deployer.interact.log(["Token balance        : ", d]);
 			}
 
+			else if (s == "InterestEarned") {
+				Deployer.interact.log(["Interest earned      : ", d]);
+			}
+
+			else if (s == "TotalInterest") {
+				Deployer.interact.log(["Total interest       : ", d]);
+			}
+
 			else {
 				Deployer.interact.log([s, d]);
 			}
@@ -109,8 +117,8 @@ export const main = Reach.App(() => {
 		log("TokenBalance", [this, balance(token)]);
 
 		/* additional linear state for interest calculation */
-		const lastLenderTime = new Map(UInt);
-		const lastBorrowerTime = new Map(UInt);
+		const lastDepositTime = new Map(UInt);
+		const lastBorrowTime = new Map(UInt);
 		const lenderInterest = new Map(UInt);
 		const borrowerInterest = new Map(UInt);
 
@@ -209,6 +217,19 @@ export const main = Reach.App(() => {
 					const lastMsgVal = fromSome(lastMsg, Msg.Deposit(0));
 					switch(lastMsgVal) {
 						case Deposit:
+							const addrDeposit = deposits[lastAddr];
+							const addrLastDepositTime = lastDepositTime[lastAddr];
+							lastDepositTime[lastAddr] = lastConsensusSecs();
+
+							if(isSome(addrLastDepositTime)) {
+								const principal = fromSome(addrDeposit, 0) - lastMsgVal;
+								const time = (lastConsensusSecs() - fromSome(addrLastDepositTime, 0)) 
+								const rate = 1;
+								const interest = principal * rate * time;
+								lenderInterest[lastAddr] = fromSome(lenderInterest[lastAddr],0) + interest;
+								log("InterestEarned", [lastAddr, interest]);
+								log("TotalInterest",  [lastAddr, lenderInterest[lastAddr]]);
+							}
 						case Withdraw:
 						case Borrow:
 						case Repay:
