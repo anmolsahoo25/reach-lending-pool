@@ -55,18 +55,21 @@ additional content, which we will discuss in the further sections.
 
 1. In `section1`, we declare all the datatypes that we are using.
 2. In `section2` we define some utility functions such as `min` to use in our
-code.
+	 code.
 3. In `section3` we specify the participant interfaces.
-4. In `section4` we perform the first consensus publication so we can create the
-necessary linear state and tokens needed for the transactions.
+4. In `section4` we perform the first consensus publication so we can create
+	 the necessary linear state and tokens needed for the transactions.
 5. In `section5` we execute a while loop which will take care of the
-transactions and represents the core of the program.
+	 transactions and represents the core of the program.
 
-Hopefully that gave you a broad idea of how the code is structured,
-so lets start coding now and take a look at each of the sections in details.
+Hopefully that gave you a broad idea of how the code is structured, so lets
+start coding now and take a look at each of the sections in details.
 
 # 2. Initial scaffolding and participant interfaces
-Let's start by setting up a minimal Reach file. Open up `index.rsh` and type the following -
+_Code can be found here - [step-0](https://github.com/anmolsahoo25/reach-lending-pool/tree/trunk/step-0)_
+
+Let's start by setting up a minimal Reach file. Open up `index.rsh` and type
+the following -
 
 ```javascript
 'reach 0.1';
@@ -107,23 +110,22 @@ export const main = Reach.App(() => {
     const deposits = new Map(UInt);
     const loans    = new Map(UInt);
 
-		commit();
-
-		Deployer.publish();
+    commit();
 
     /* while loop for executing transactions */
+    Deployer.publish();
     var [] = []
     invariant(true)
     while(true) {
-				commit();
-
-				race(Lender, Borrower).publish();
+        commit();
+        
+        race(Lender, Borrower).publish();
 
         [] = [];
         continue;
     }
 
-		commit();
+    commit();
 });
 ```
 
@@ -158,9 +160,80 @@ Let's discuss the structure of our application a bit. In this code, each
 iteration of the while loop corresponds to a race between the `Lenders` and
 `Borrowers`. Depending on the actions produced by the winning agent, 
 we update the necessary state variables for the agent and the contract. Thus,
-it makes it easy to encode (and verify) each step of the contract.
+it makes it easy to write (and verify) each step of the contract.
 
 # 3. Front-end setup in Javascript
+_Code can be found here - [step-1](https://github.com/anmolsahoo25/reach-lending-pool/tree/trunk/step-1)_
+In this section, we can run our code (finally) to check if we have setup
+everything correctly. We can write a minimal front-end in Javascript. Open
+up `index.mjs` and input the following code -
+
+```javascript
+import { loadStdlib } from '@reach-sh/stdlib';
+import * as backend from './build/index.main.mjs';
+const stdlib = loadStdlib(process.env);
+
+/* log messages from the app */
+const log = (msg) => console.log(`[APP]   : ${msg}`);
+
+/* log messages from Reach */
+const logReach = (addrs) => {
+	const f = ([s,e]) => {
+		const s1 = addrs[e[0]];
+		const s2 = typeof(addrs[e[1]]) === 'undefined' ?
+			(typeof(e[1]) === 'undefined' ? "" : e[1]) : addrs[e[1]];
+		const s3 = typeof(e[2]) === 'undefined' ? "" : e[2];
+		console.log(`[REACH] : ${s}${s1}${s2}${s3}`);
+	};
+
+	return f;
+};
+
+(async () => {
+	log("Starting application");
+
+	const startingBalance = stdlib.parseCurrency(1000);
+	
+	var addrs = {};
+
+	const acc0 = await stdlib.newTestAccount(startingBalance);
+
+	addrs[acc0.getAddress()] = "acc0"
+
+	log(`acc0 (${acc0.getAddress()}) ${await stdlib.balanceOf(acc0)} microALGO`);
+
+	const ctc0 = acc0.contract(backend);
+
+	await Promise.all([
+		backend.Deployer(ctc0, {
+			log: logReach(addrs)
+		})
+	]);
+})();
+```
+
+We create some logging functions (the logging function is not the cleanest, sorry!),
+create an account and create a Deployer participant. Hopefully, there is nothing
+much to explain here, but if you feel like you are missing something you can refer
+to the Reach tutorial here - [Scaffolding and Setup](https://docs.reach.sh/tut-2.html).
+
+We also add a logging function in `index.rsh` and this line of code - 
+
+```javascript
+/* first consensus for setup */
+Deployer.publish();
+logMsg("FirstTransaction", [this]);
+```
+
+Run `reach run` and if everything was successful, you should see this output -
+
+`bash
+[APP]   : Starting application
+[APP]   : acc0 (0x52b6f077fa97bd4bf467ce46e2c693590f1ac72b2cc62403bd5fd2668a0cd7cf) 1000000000 microALGO
+[REACH] : First publication by : acc0
+`
+As we can, we first log from the frontend and the first publication from Reach.
+So far, so good!
 
 # 4. Implementing the core transaction loop
 

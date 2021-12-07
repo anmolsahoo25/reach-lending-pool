@@ -4,10 +4,10 @@ export const main = Reach.App(() => {
 
     /* data definitions */
     const Msg = Data({
-        Deposit: UInt,
+        Deposit : UInt,
         Withdraw: UInt,
-        Borrow: UInt,
-        Repay: UInt,
+        Borrow  : UInt,
+        Repay   : UInt,
         Transfer: Object({amount: UInt, to: Address})
     });
 
@@ -30,6 +30,23 @@ export const main = Reach.App(() => {
 		const log = (s, d) => {
 			if (s == "FirstPub") {
 				Deployer.interact.log(["First publication by : ", d]);
+			}
+
+			else if (s == "Transaction") {
+				const msg = d[1];
+				switch(msg) {
+					case Deposit:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Withdraw:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Borrow:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Repay:
+						Deployer.interact.log(["Transaction by       : ", d]);
+					case Transfer:
+						Deployer.interact.log(["Transaction by       : ",
+						    [d[0], msg.to, ["Transfer", msg.amt]]]);
+				}
 			}
 
 			else if (s == "LendingTransaction") {
@@ -60,6 +77,18 @@ export const main = Reach.App(() => {
 				Deployer.interact.log(["Lender transferred   : ", d]);
 			}
 
+			else if (s == "TokenBalance") {
+				Deployer.interact.log(["Token balance        : ", d]);
+			}
+
+			else if (s == "InterestEarned") {
+				Deployer.interact.log(["Interest earned      : ", d]);
+			}
+
+			else if (s == "TotalInterest") {
+				Deployer.interact.log(["Total interest       : ", d]);
+			}
+
 			else {
 				Deployer.interact.log([s, d]);
 			}
@@ -76,13 +105,16 @@ export const main = Reach.App(() => {
     const deposits = new Map(UInt);
     const loans    = new Map(UInt);
 
+		commit();
+
     /* while loop for executing transactions */
+		Deployer.publish();
     var [] = []
     invariant(true)
     while(true) {
 				commit();
 
-				race(Lender).publish();
+				race(Lender, Borrower).publish();
 
         [] = [];
         continue;

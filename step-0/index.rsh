@@ -36,21 +36,20 @@ export const main = Reach.App(() => {
     const deposits = new Map(UInt);
     const loans    = new Map(UInt);
 
-		commit();
-
-		Deployer.publish();
+    commit();
 
     /* while loop for executing transactions */
+    Deployer.publish();
     var [] = []
     invariant(true)
     while(true) {
-				commit();
+        commit();
 
-				race(Lender, Borrower).publish();
+        race(Lender, Borrower).publish();
 
         [] = [];
         continue;
     }
-
-		commit();
+    
+    commit();
 });
