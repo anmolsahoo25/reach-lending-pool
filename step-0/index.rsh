@@ -4,10 +4,10 @@ export const main = Reach.App(() => {
 
     /* data definitions */
     const Msg = Data({
-        Deposit: UInt,
+        Deposit : UInt,
         Withdraw: UInt,
-        Borrow: UInt,
-        Repay: UInt,
+        Borrow  : UInt,
+        Repay   : UInt,
         Transfer: Object({amount: UInt, to: Address})
     });
 
@@ -36,13 +36,17 @@ export const main = Reach.App(() => {
     const deposits = new Map(UInt);
     const loans    = new Map(UInt);
 
+		commit();
+
+		Deployer.publish();
+
     /* while loop for executing transactions */
     var [] = []
     invariant(true)
     while(true) {
 				commit();
 
-				race(Lender).publish();
+				race(Lender, Borrower).publish();
 
         [] = [];
         continue;
