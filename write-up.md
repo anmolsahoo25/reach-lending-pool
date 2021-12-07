@@ -313,6 +313,10 @@ As we can see, each round we are taking a transaction action from one account.
 Now all we have to do is implement the logic for each participant class!
 
 # 5. Implementing and testing the logic for lending users
+_Code can be found here - [step-3](https://github.com/anmolsahoo25/reach-lending-pool/tree/trunk/step-3)_
+
+In this section, we will modify our reach program and implement the logic
+for the `Lenders`. Let's take a look - 
 
 # 6. Implementing and testing the logic for borrowing users
 

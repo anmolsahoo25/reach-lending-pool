@@ -4,10 +4,10 @@ export const main = Reach.App(() => {
 
     /* data definitions */
     const Msg = Data({
-        Deposit: UInt,
+        Deposit : UInt,
         Withdraw: UInt,
-        Borrow: UInt,
-        Repay: UInt,
+        Borrow  : UInt,
+        Repay   : UInt,
         Transfer: Object({amount: UInt, to: Address})
     });
 
