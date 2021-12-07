@@ -192,7 +192,7 @@ const logReach = (addrs) => {
 (async () => {
 	log("Starting application");
 
-	const startingBalance = stdlib.parseCurrency(1000);
+	const startingBalance = stdlib.parseCurrency(100);
 	
 	var addrs = {};
 
@@ -200,7 +200,7 @@ const logReach = (addrs) => {
 
 	addrs[acc0.getAddress()] = "acc0"
 
-	log(`acc0 (${acc0.getAddress()}) ${await stdlib.balanceOf(acc0)} microALGO`);
+	log(`acc0 (${acc0.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(acc0)} microALGO`);
 
 	const ctc0 = acc0.contract(backend);
 
@@ -217,7 +217,7 @@ create an account and create a Deployer participant. Hopefully, there is nothing
 much to explain here, but if you feel like you are missing something you can refer
 to the Reach tutorial here - [Scaffolding and Setup](https://docs.reach.sh/tut-2.html).
 
-We also add a logging function in `index.rsh` and this line of code - 
+We also add a logging function in `index.rsh` and a new log after the first publication -
 
 ```javascript
 /* first consensus for setup */
@@ -229,9 +229,10 @@ Run `reach run` and if everything was successful, you should see this output -
 
 `bash
 [APP]   : Starting application
-[APP]   : acc0 (0x52b6f077fa97bd4bf467ce46e2c693590f1ac72b2cc62403bd5fd2668a0cd7cf) 1000000000 microALGO
+[APP]   : acc0 (0x7b...) 1000000000 microALGO
 [REACH] : First publication by : acc0
 `
+
 As we can, we first log from the frontend and the first publication from Reach.
 So far, so good!
 

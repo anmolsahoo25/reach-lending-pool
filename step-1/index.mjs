@@ -21,7 +21,7 @@ const logReach = (addrs) => {
 (async () => {
 	log("Starting application");
 
-	const startingBalance = stdlib.parseCurrency(1000);
+	const startingBalance = stdlib.parseCurrency(100);
 
 	var addrs = {};
 
@@ -29,7 +29,7 @@ const logReach = (addrs) => {
 
 	addrs[acc0.getAddress()] = "acc0"
 
-	log(`acc0 (${acc0.getAddress()}) ${await stdlib.balanceOf(acc0)} microALGO`);
+	log(`acc0 (${acc0.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(acc0)} microALGO`);
 
 	const ctc0 = acc0.contract(backend);
 
