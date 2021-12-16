@@ -187,10 +187,13 @@ export const main = Reach.App(() => {
               (msg <= balance()) && (msg <= fromSome(deposits[this], 0));
 
             if(canWithdraw) {
+              assert(canWithdraw);
               log("LenderWithdrew", [this, msg]);
               log("TokenBalance", [Deployer, balance(token)]);
               transfer(msg).to(this);
               deposits[this] = fromSome(deposits[this], 0) - msg;
+            } else {
+              assert(not(canWithdraw))
             }
 
           case Borrow:
@@ -205,6 +208,7 @@ export const main = Reach.App(() => {
             const currLoan = fromSome(loans[this], 0);
             const toPay    = min(msg, currLoan);
             if(currLoan > 0) {
+              assert(currLoan > 0);
               log("BorrowerRepaid", [this, toPay]);
               loans[this] = currLoan - toPay;
             }
