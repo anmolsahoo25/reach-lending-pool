@@ -158,7 +158,7 @@ export const main = Reach.App(() => {
               Withdraw : (v) => v < fromSome(deposits[this], 0) ? v : 0,
               Repay    : (_) => 0,
               Borrow   : (_) => 0,
-              Transfer : ({amt, to}) => amt < fromSome(deposits[this], 0) ? amt : 0
+              Transfer : ({amt, to}) => amt <= fromSome(deposits[this], 0) ? amt : 0
             }),
             token
           ]
@@ -204,7 +204,7 @@ export const main = Reach.App(() => {
             }
 
           case Transfer:
-            if(msg.amt < fromSome(deposits[this], 0)) {
+            if(msg.amt <= fromSome(deposits[this], 0)) {
               transfer(msg.amt, token).to(msg.to);
               deposits[this] = fromSome(deposits[this], 0) - msg.amt;
               deposits[msg.to] = fromSome(deposits[msg.to], 0) + msg.amt;

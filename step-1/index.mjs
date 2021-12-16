@@ -21,20 +21,25 @@ const logReach = (addrs) => {
 (async () => {
   log("Starting application");
 
+  /* starting balance for all test accounts */
   const startingBalance = stdlib.parseCurrency(100);
 
+  /* object to store addresses of test accounts created */
   var addrs = {};
 
-  const acc0 = await stdlib.newTestAccount(startingBalance);
+  /* accDeployer - the account which deploys the application */
+  const accDeployer = await stdlib.newTestAccount(startingBalance);
 
-  addrs[acc0.getAddress()] = "acc0"
+  /* store each account address mapped to its name in the addrs object */
+  addrs[accDeployer.getAddress()] = "accDeployer"
 
-  log(`acc0 (${acc0.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(acc0)} microALGO`);
+  log(`accDeployer (${accDeployer.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accDeployer)} microALGO`);
 
-  const ctc0 = acc0.contract(backend);
+  /* contract info for deployer account */
+  const ctcDeployer = accDeployer.contract(backend);
 
   await Promise.all([
-    backend.Deployer(ctc0, {
+    backend.Deployer(ctcDeployer, {
       log: logReach(addrs)
     })
   ]);

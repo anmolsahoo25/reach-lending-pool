@@ -19,7 +19,7 @@ const logReach = (addrs) => {
 };
 
 /* deposit behavior */
-const depositAndWithdraw = () => {
+const deposit = () => {
   var x = 0;
   const f = () => {
     if(x === 0) {
@@ -51,34 +51,47 @@ const borrowAndRepay = () => {
 (async () => {
   log("Starting application");
 
+  /* starting balance for all test accounts */
   const startingBalance = stdlib.parseCurrency(100);
 
+  /* object to store addresses of test accounts created */
   var addrs = {};
 
-  const acc0 = await stdlib.newTestAccount(startingBalance);
-  const accA = await stdlib.newTestAccount(startingBalance);
-  const accB = await stdlib.newTestAccount(startingBalance);
+  /* accDeployer - the account which deploys the application */
+  const accDeployer = await stdlib.newTestAccount(startingBalance);
 
-  addrs[acc0.getAddress()] = "acc0"
-  addrs[accA.getAddress()] = "accA"
-  addrs[accB.getAddress()] = "accB"
+  /* accLender - account which lends funds to the pool */
+  const accLender = await stdlib.newTestAccount(startingBalance);
 
-  log(`acc0 (${acc0.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(acc0)} microALGO`);
-  log(`accA (${accA.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accA)} microALGO`);
-  log(`accB (${accB.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accB)} microALGO`);
+  /* accBorrower - account which borrows funds from the pool */
+  const accBorrower = await stdlib.newTestAccount(startingBalance);
 
-  const ctc0 = acc0.contract(backend);
-  const ctcA = accA.contract(backend, ctc0.getInfo());
-  const ctcB = accB.contract(backend, ctc0.getInfo());
+  /* store each account address mapped to its name in the addrs object */
+  addrs[accDeployer.getAddress()] = "accDeployer"
+  addrs[accLender.getAddress()]   = "accLender  "
+  addrs[accBorrower.getAddress()] = "accBorrower"
+
+  log(`accDeployer (${accDeployer.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accDeployer)} microALGO`);
+  log(`accLender   (${accLender.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accLender)} microALGO`);
+  log(`accBorrower (${accBorrower.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accBorrower)} microALGO`);
+
+  /* contract info for deployer account */
+  const ctcDeployer = accDeployer.contract(backend);
+
+  /* contract info for lender, created by receiving info from deployer */
+  const ctcLender = accLender.contract(backend, ctcDeployer.getInfo());
+
+  /* contract info for borrower, created by receiving info from deployer */
+  const ctcBorrower = accBorrower.contract(backend, ctcDeployer.getInfo());
 
   await Promise.all([
-    backend.Deployer(ctc0, {
+    backend.Deployer(ctcDeployer, {
       log: logReach(addrs)
     }),
-    backend.Lender(ctcA, {
-      getMsg: depositAndWithdraw()
+    backend.Lender(ctcLender, {
+      getMsg: deposit()
     }),
-    backend.Borrower(ctcB, {
+    backend.Borrower(ctcBorrower, {
       getMsg: borrowAndRepay()
     })
   ]);

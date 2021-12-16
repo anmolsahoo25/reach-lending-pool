@@ -18,7 +18,7 @@ const logReach = (addrs) => {
   return f;
 };
 
-/* deposit behavior */
+/* deposit and transfer behavior */
 const depositAndTransfer = (addr) => {
   var x = 0;
   const f = () => {
@@ -37,39 +37,52 @@ const depositAndTransfer = (addr) => {
 (async () => {
   log("Starting application");
 
+  /* starting balance for all test accounts */
   const startingBalance = stdlib.parseCurrency(100);
 
+  /* object to store addresses of test accounts created */
   var addrs = {};
 
-  const acc0 = await stdlib.newTestAccount(startingBalance);
-  const accA = await stdlib.newTestAccount(startingBalance);
-  const accB = await stdlib.newTestAccount(startingBalance);
+  /* accDeployer - the account which deploys the application */
+  const accDeployer = await stdlib.newTestAccount(startingBalance);
 
-  addrs[acc0.getAddress()] = "acc0"
-  addrs[accA.getAddress()] = "accA"
-  addrs[accB.getAddress()] = "accB"
+  /* accLender1 - account 1 which lends funds, transfers and receives tokens */
+  const accLender1 = await stdlib.newTestAccount(startingBalance);
 
-  log(`acc0 (${acc0.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(acc0)} microALGO`);
-  log(`accA (${accA.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accA)} microALGO`);
-  log(`accB (${accB.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accB)} microALGO`);
+  /* accLender2 - account 2 which lends funds, transfers and receives tokens */
+  const accLender2 = await stdlib.newTestAccount(startingBalance);
 
-  const ctc0 = acc0.contract(backend);
-  const ctcA = accA.contract(backend, ctc0.getInfo());
-  const ctcB = accB.contract(backend, ctc0.getInfo());
+  /* store each account address mapped to its name in the addrs object */
+  addrs[accDeployer.getAddress()] = "accDeployer"
+  addrs[accLender1.getAddress()]  = "accLender1 "
+  addrs[accLender2.getAddress()]  = "accLender2 "
+
+  log(`accDeployer (${accDeployer.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accDeployer)} microALGO`);
+  log(`accLender1  (${accLender1.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accLender1)} microALGO`);
+  log(`accLender2  (${accLender2.getAddress().slice(0,4)}...) ${await stdlib.balanceOf(accLender2)} microALGO`);
+
+  /* contract info for deployer account */
+  const ctcDeployer = accDeployer.contract(backend);
+
+  /* contract info for lender, created by receiving info from deployer */
+  const ctcLender1 = accLender1.contract(backend, ctcDeployer.getInfo());
+
+  /* contract info for lender, created by receiving info from deployer */
+  const ctcLender2 = accLender2.contract(backend, ctcDeployer.getInfo());
 
   await Promise.all([
-    backend.Deployer(ctc0, {
+    backend.Deployer(ctcDeployer, {
       log: logReach(addrs)
     }),
-    backend.Lender(ctcA, {
-      getMsg: depositAndTransfer(accB.getAddress()),
-      printTokenBalance: async (token) => log(`accA ${await stdlib.balanceOf(accA, token)} tokens`),
-      informTokenId: async (token) => await accA.tokenAccept(token)
+    backend.Lender(ctcLender1, {
+      getMsg: depositAndTransfer(accLender2.getAddress()),
+      printTokenBalance: async (token) => log(`accLender1 ${await stdlib.balanceOf(accLender1, token)} tokens`),
+      informTokenId: async (token) => await accLender1.tokenAccept(token)
     }),
-    backend.Lender(ctcB, {
-      getMsg: depositAndTransfer(accA.getAddress()),
-      printTokenBalance: async (token) => log(`accB ${await stdlib.balanceOf(accB, token)} tokens`),
-      informTokenId: async (token) => await accB.tokenAccept(token)
+    backend.Lender(ctcLender2, {
+      getMsg: depositAndTransfer(accLender1.getAddress()),
+      printTokenBalance: async (token) => log(`accLender2 ${await stdlib.balanceOf(accLender2, token)} tokens`),
+      informTokenId: async (token) => await accLender2.tokenAccept(token)
     })
   ]);
 })();
