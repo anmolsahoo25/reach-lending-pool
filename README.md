@@ -17,7 +17,8 @@ The agenda of the tutorial is as follows -
 6. Implementing and testing the logic for borrowing users
 7. Implementing and testing the debt tokenization
 8. Implementing and testing the interest calculation logic
-9. Thanks!
+9. Basic verification of lending pool
+10. Thanks!
 
 DISCLAIMER: Please note that is only a tutorial and not meant to be used
 in the real-world. The code has not been tested or audited for vulnerabilities.
