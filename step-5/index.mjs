@@ -8,7 +8,7 @@ const log = (msg) => console.log(`[APP]   : ${msg}`);
 /* log messages from Reach */
 const logReach = (addrs) => {
   const f = ([s,e]) => {
-    const s1 = addrs[e[0]];
+    const s1 = e[0] === null ? "" : ` ${addrs[e[0]]}`;
     const s2 = typeof(addrs[e[1]]) === 'undefined' ?
       (typeof(e[1]) === 'undefined' ? "" : e[1]) : addrs[e[1]];
     const s3 = typeof(e[2]) === 'undefined' ? "" : e[2];
@@ -76,12 +76,12 @@ const depositAndTransfer = (addr) => {
     }),
     backend.Lender(ctcLender1, {
       getMsg: depositAndTransfer(accLender2.getAddress()),
-      printTokenBalance: async (token) => log(`accLender1 ${await stdlib.balanceOf(accLender1, token)} tokens`),
+      printTokenBalance: async (token) => log(`Account token balance:  accLender1  ${await stdlib.balanceOf(accLender1, token)} tokens`),
       informTokenId: async (token) => await accLender1.tokenAccept(token)
     }),
     backend.Lender(ctcLender2, {
       getMsg: depositAndTransfer(accLender1.getAddress()),
-      printTokenBalance: async (token) => log(`accLender2 ${await stdlib.balanceOf(accLender2, token)} tokens`),
+      printTokenBalance: async (token) => log(`Account token balance:  accLender2  ${await stdlib.balanceOf(accLender2, token)} tokens`),
       informTokenId: async (token) => await accLender2.tokenAccept(token)
     })
   ]);

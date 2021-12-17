@@ -8,7 +8,7 @@ const log = (msg) => console.log(`[APP]   : ${msg}`);
 /* log messages from Reach */
 const logReach = (addrs) => {
   const f = ([s,e]) => {
-    const s1 = addrs[e[0]];
+    const s1 = e[0] === null ? "" : ` ${addrs[e[0]]}`;
     const s2 = typeof(addrs[e[1]]) === 'undefined' ?
       (typeof(e[1]) === 'undefined' ? "" : e[1]) : addrs[e[1]];
     const s3 = typeof(e[2]) === 'undefined' ? "" : e[2];
@@ -67,7 +67,7 @@ const depositAndHold = () => {
     }),
     backend.Lender(ctcLender, {
       getMsg: depositAndHold(),
-      printTokenBalance: async (token) => log(`accLender ${await stdlib.balanceOf(accA, token)} tokens`),
+      printTokenBalance: async (token) => log(`Account token balance:  accLender   ${await stdlib.balanceOf(accLender2, token)} tokens`),
       informTokenId: async (token) => await accLender.tokenAccept(token)
     })
   ]);

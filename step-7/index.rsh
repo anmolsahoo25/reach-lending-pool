@@ -79,7 +79,7 @@ export const main = Reach.App(() => {
       }
 
       else if (s == "TokenBalance") {
-        Deployer.interact.log(["Token balance        : ", d]);
+        Deployer.interact.log(["Pool token balance   : ", d]);
       }
 
       else if (s == "InterestEarned") {
@@ -114,7 +114,7 @@ export const main = Reach.App(() => {
       symbol: Bytes(8).pad("token"),
       supply: 1000
     });
-    log("TokenBalance", [this, balance(token)]);
+    log("TokenBalance", [null, balance(token)]);
 
     /* additional linear state for interest calculation */
     const lastDepositTime = new Map(UInt);
@@ -179,7 +179,7 @@ export const main = Reach.App(() => {
             if(msg <= balance(token)) {
               assert(msg <= balance(token));
               transfer(msg, token).to(this);
-              log("TokenBalance", [Deployer, balance(token)]);
+              log("TokenBalance", [null, balance(token)]);
             }
 
           case Withdraw:
@@ -189,7 +189,7 @@ export const main = Reach.App(() => {
             if(canWithdraw) {
               assert(canWithdraw);
               log("LenderWithdrew", [this, msg]);
-              log("TokenBalance", [Deployer, balance(token)]);
+              log("TokenBalance", [null, balance(token)]);
               transfer(msg).to(this);
               deposits[this] = fromSome(deposits[this], 0) - msg;
             } else {
@@ -220,6 +220,31 @@ export const main = Reach.App(() => {
               deposits[msg.to] = fromSome(deposits[msg.to], 0) + msg.amt;
               Lender.interact.printTokenBalance(token);
             }
+        }
+
+        /* interest calculation */
+        if(isSome(lastMsg)) {
+          const lastMsgVal = fromSome(lastMsg, Msg.Deposit(0));
+          switch(lastMsgVal) {
+            case Deposit:
+              const addrDeposit = deposits[lastAddr];
+              const addrLastDepositTime = lastDepositTime[lastAddr];
+              lastDepositTime[lastAddr] = lastConsensusSecs();
+
+              if(isSome(addrLastDepositTime)) {
+                const principal = fromSome(addrDeposit, 0) - lastMsgVal;
+                const time = (lastConsensusSecs() - fromSome(addrLastDepositTime, 0)) 
+                const rate = 1;
+                const interest = principal * rate * time;
+                lenderInterest[lastAddr] = fromSome(lenderInterest[lastAddr],0) + interest;
+                log("InterestEarned", [lastAddr, interest]);
+                log("TotalInterest",  [lastAddr, lenderInterest[lastAddr]]);
+              }
+            case Withdraw:
+            case Borrow:
+            case Repay:
+            case Transfer:
+          }
         }
 
         /* continue loop while updating loop variables */
